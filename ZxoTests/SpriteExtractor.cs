@@ -118,7 +118,6 @@ namespace ZxoTests
             lock (SpritesInfo)
                 SpritesInfo.Add(info);
             Interlocked.Increment(ref current);
-            Console.WriteLine($"Dumped {sprite.Name.Content} ({current}/{Total})");
         }
 
         Bitmap? AppendBitmaps(IList<Bitmap> bitmaps)
