@@ -44,6 +44,7 @@
             this.tick = new System.Windows.Forms.Timer(this.components);
             this.progressLabel = new System.Windows.Forms.Label();
             this.lblCredit = new System.Windows.Forms.Label();
+            this.cbSpriteSplit = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // filedialog
@@ -160,11 +161,24 @@
             this.lblCredit.TabIndex = 11;
             this.lblCredit.Text = "By Zxo Pink";
             // 
-            // Form1
+            // cbSpriteSplit
+            // 
+            this.cbSpriteSplit.AccessibleDescription = "If checked, Each sprite will be exported to a single long png";
+            this.cbSpriteSplit.AutoSize = true;
+            this.cbSpriteSplit.CheckAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.cbSpriteSplit.Location = new System.Drawing.Point(404, 133);
+            this.cbSpriteSplit.Name = "cbSpriteSplit";
+            this.cbSpriteSplit.Size = new System.Drawing.Size(87, 19);
+            this.cbSpriteSplit.TabIndex = 12;
+            this.cbSpriteSplit.Text = "Split Sprites";
+            this.cbSpriteSplit.UseVisualStyleBackColor = true;
+            // 
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(499, 154);
+            this.Controls.Add(this.cbSpriteSplit);
             this.Controls.Add(this.lblCredit);
             this.Controls.Add(this.progressLabel);
             this.Controls.Add(this.progressBar);
@@ -177,7 +191,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.tbFilter);
             this.Controls.Add(this.button1);
-            this.Name = "Form1";
+            this.Name = "Main";
             this.Text = "PTUF Extractor";
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -201,5 +215,6 @@
         private System.Windows.Forms.Timer tick;
         private Label progressLabel;
         private Label lblCredit;
+        private CheckBox cbSpriteSplit;
     }
 }

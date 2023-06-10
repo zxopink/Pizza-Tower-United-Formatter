@@ -1,5 +1,6 @@
 using System.IO.Compression;
 using System.Windows.Forms;
+using UndertaleModLib;
 using ZxoTests;
 
 namespace ZxoPTUF
@@ -8,6 +9,8 @@ namespace ZxoPTUF
     {
         private string dataPath => tbDataFile.Text;
         private string outputPath => tbOutput.Text;
+
+        private (UndertaleData Data, string Path)? UndertaleData;
 
         SpriteExtractor? Extractor;
         public Main()
@@ -38,7 +41,7 @@ namespace ZxoPTUF
             }
         }
 
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(dataPath))
             {
@@ -55,22 +58,33 @@ namespace ZxoPTUF
                 MessageBox.Show("Already extracting!");
                 return;
             }
-            
-            Extractor = new SpriteExtractor(dataPath, outputPath, tbFilter.Text);
-            Extractor.Start();
+
             tick.Start();
+            
+            try
+            {
+                await StartExtract();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
+
+        private async Task StartExtract()
+        {
+            if (UndertaleData == null)
+                UndertaleData = (await ReadUndertaleDataAsync(dataPath), dataPath);
+            else if (UndertaleData.Value.Path != dataPath)
+                UndertaleData = (await ReadUndertaleDataAsync(dataPath), dataPath);
+            Extractor = new SpriteExtractor(UndertaleData.Value.Data, outputPath, tbFilter.Text, cbSpriteSplit.Checked);
+            await Extractor.Start();
         }
 
         private int dotCount = 0;
         private void tick_Tick(object sender, EventArgs e)
         {
-            if (Extractor == null) return;
-
-            int progress = Extractor.Progress;
-            progressBar.Value = progress;
-
-
-            if (progress == 0)
+            if (UndertaleData == default)
             {
                 tick.Interval = 1000;
                 string dot = ".";
@@ -79,20 +93,35 @@ namespace ZxoPTUF
                 dotCount++;
                 dotCount %= 3;
                 progressLabel.Text = "Opening data file" + dot;
+                return;
             }
-            else
-            {
+            else if (Extractor == null)
+                return;
+
+            int progress = Extractor.Progress;
+            progressBar.Value = progress;
+
                 tick.Interval = 33;
                 progressLabel.Text = $"Extracting: {Extractor.Current}/{Extractor.Total}";
-            }
 
             if (Extractor.Progress == 100)
             {
                 tick.Stop();
                 progressLabel.Text = "Done!";
-                MessageBox.Show("Done!");
                 Extractor = null;
             }
+        }
+
+        private static Task<UndertaleData> ReadUndertaleDataAsync(string dataPath)
+        {
+            return Task.Run(() =>
+            {
+                FileStream fs = new FileStream(dataPath, FileMode.Open, FileAccess.Read);
+                UndertaleData data = UndertaleIO.Read(fs, null);
+                fs.Close();
+                return data;
+            });
+
         }
     }
 }

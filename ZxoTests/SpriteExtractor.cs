@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using UndertaleModLib;
 using UndertaleModLib.Models;
 using UndertaleModLib.Util;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ZxoTests
 {
@@ -28,6 +29,7 @@ namespace ZxoTests
         private TextureWorker Worker { get; init; }
 
         private JsonArray SpritesInfo { get; init; } = new();
+        public bool SpriteSplit { get; init; }
 
         private static UndertaleData Read(string dataPath)
         {
@@ -38,12 +40,13 @@ namespace ZxoTests
         }
 
         private string DataPath;
-        public SpriteExtractor(string dataPath, string output, string filter) : this(default(UndertaleData), output, filter)
+        public SpriteExtractor(string dataPath, string output, string filter, bool spriteSplit = false) : this(default(UndertaleData), output, filter, spriteSplit)
         {
             DataPath = dataPath;
         }
-        public SpriteExtractor(UndertaleData data, string output, string filter)
+        public SpriteExtractor(UndertaleData data, string output, string filter, bool spriteSplit = false)
         {
+            SpriteSplit = spriteSplit;
             Data = data;
             Total = 1;
             Worker = new TextureWorker();
@@ -53,7 +56,7 @@ namespace ZxoTests
         }
 
 
-        private ZipArchive Zip = default!;
+        //private ZipArchive Zip = default!;
         public async Task Start()
         {
             if (Data == null)
@@ -105,14 +108,28 @@ namespace ZxoTests
                     var tex = Worker.GetTextureFor(sprite.Textures[i].Texture, sprite.Name.Content + "_" + i + ".png", true); // Include padding to make sprites look neat!
                     bitmaps.Add(tex);
                 }
-            var appended = AppendBitmaps(bitmaps);
-            string fPath = Path.Combine(Output, sprFileName);
-            if (appended != null)
+            
+            if (bitmaps.Count > 0)
             {
-                //var entry = Zip.CreateEntry(fPath);
-                //using (var stream = entry.Open())
-                //    appended.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-                appended.Save(fPath);
+                if (SpriteSplit)
+                {
+                    var appended = AppendBitmaps(bitmaps);
+                    string fPath = Path.Combine(Output, sprFileName);
+                    //var entry = Zip.CreateEntry(fPath);
+                    //using (var stream = entry.Open())
+                    //    appended.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                    appended.Save(fPath);
+                }
+                else
+                {
+                    string fPath = Path.Combine(Output, sprite.Name.Content);
+                    Directory.CreateDirectory(fPath);
+                    for (int i = 0; i < bitmaps.Count; i++)
+                    {
+                        string filePath = Path.Combine(fPath, sprite.Name.Content + "_" + i + ".png");
+                        bitmaps[i].Save(filePath);
+                    }
+                }
             }
 
             lock (SpritesInfo)
