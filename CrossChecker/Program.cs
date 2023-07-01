@@ -23,7 +23,7 @@ Console.WriteLine($"Done reading original");
 UndertaleData modified = LoadData(@"G:\SteamLibrary\steamapps\common\Pizza Tower\data.win");
 Console.WriteLine($"Done reading modified");
 
-Console.WriteLine("Finding Scripts...");
+Console.WriteLine("Finding rooms...");
 List<UndertaleRoom> rooms = new();
 
 List<string> orignalLevel = original.Rooms.Select(room => room.Name.Content).ToList();
@@ -45,7 +45,7 @@ foreach (var code in rooms)
 {
     Console.WriteLine(code.Name.Content);
 }
-Console.WriteLine("Done finding scripts");
+Console.WriteLine("Done finding rooms");
 
 #region Scripts
 //Console.WriteLine("Finding Scripts...");
